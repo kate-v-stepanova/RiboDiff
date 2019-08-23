@@ -11,7 +11,7 @@ Details:
 
 import sys
 import os
-from ribodiff.parseopts import *
+from ribodiff.parseopts import parse_options
 
 def main():
     """

@@ -7,6 +7,7 @@ import os
 import sys
 import cPickle as pickle
 import numpy as np
+import pandas as pd
 import matplotlib 
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -161,41 +162,51 @@ def empDisp_scatter(data, fileOutName):
     plt.savefig(fileOutName, format='pdf', bbox_inches='tight')
 
 def cnt_deltaTE_scatter(data, fdr, fileOutName):
-
     cntRiboNorm = data.countRibo / data.libSizesRibo
     cntRnaNorm  = data.countRna  / data.libSizesRna
 
     padj = data.padj.flatten()
 
     with np.errstate(invalid='ignore'):
-        idx = np.logical_and(~np.isnan(padj), np.logical_and(np.sum(cntRiboNorm, axis=1)/data.libSizesRibo.size > 2, np.sum(cntRnaNorm, axis=1)/data.libSizesRna.size > 2)).nonzero()[0]
-        cntRiboMean = np.mean(cntRiboNorm[idx], axis=1)
-        logFoldChangeTE = data.logFoldChangeTE[idx]
+        df = pd.DataFrame()
+        if len(cntRiboNorm) != len(cntRnaNorm):
+            print("Lengths of the datasets don't match!!")
+            exit(1)
+        cntRiboMean = np.mean(cntRiboNorm, axis=1)
+        cntRnaMean = np.mean(cntRnaNorm, axis=1) 
 
-        index = np.logical_and(padj < fdr, np.logical_and(np.sum(cntRiboNorm, axis=1)/data.libSizesRibo.size > 2, np.sum(cntRnaNorm, axis=1)/data.libSizesRna.size > 2)).nonzero()[0]
-        cntRiboMeanSig = np.mean(cntRiboNorm[index], axis=1)
-        logFoldChangeTEsig = data.logFoldChangeTE[index]
+        df['cntRiboMean'] = list(cntRiboMean)
+        df['cntRnaMean'] = list(cntRnaMean)
+        df['padj'] = list(padj)
+        df['logFoldChangeTE'] = list(data.logFoldChangeTE)
+        idx = np.logical_and(~np.isnan(padj), np.logical_and(np.sum(cntRiboNorm, axis=1)/data.libSizesRibo.size > 2, np.sum(cntRnaNorm, axis=1)/data.libSizesRna.size > 2)).nonzero()[0]
+        df = df.loc[idx]
+        logFoldChangeTE = df['logFoldChangeTE']
+        cntRnaMean = df['cntRnaMean']
+        cntRiboMean = df['cntRiboMean']
+        df_sig = df.loc[df['padj'] < fdr]
+        cntRiboMeanSig = df_sig['cntRiboMean']
+        cntRnaMeanSig = df_sig['cntRnaMean']
+
+        logFoldChangeTEsig = df_sig['logFoldChangeTE']
+        logRna = np.log2(cntRnaMean)
+        logRnaSig = np.log2(cntRnaMeanSig)
 
     fig, ax = plt.subplots()
-
-    ax.scatter(cntRiboMean, logFoldChangeTE, marker='o', color='silver', s=1, lw=0, label='Tested genes')
-    ax.scatter(cntRiboMeanSig, logFoldChangeTEsig, marker='o', color='darkorange', s=1, lw=0, label='Significant genes')
+   
+    ax.scatter(logRna, logFoldChangeTE, marker='o', color='silver', s=1, lw=0, label='Tested genes ({})'.format(len(logRna)))
+    ax.scatter(logRnaSig, logFoldChangeTEsig, marker='o', color='darkorange', s=1, lw=0, label='Significant genes ({})'.format(len(logRnaSig)))
 
     ax.legend(loc='upper right', prop={'size':10})
-
-    xLowerBound = (np.percentile(cntRiboMean, 99.0) - min(cntRiboMean)) * -0.02
-    xUpperBound = np.percentile(cntRiboMean, 99.0)
-
-    ax.set_xlim(xLowerBound, xUpperBound)
-    ax.set_ylim(np.percentile(logFoldChangeTE, 0.5), np.percentile(logFoldChangeTE, 99.5))
 
     ax.get_xaxis().tick_bottom()
     ax.get_yaxis().tick_left()
     ax.tick_params(axis='x', labelsize=10)
     ax.tick_params(axis='y', labelsize=10)
-
-    ax.set_title(r'Translation Efficiency Change')
-    ax.set_xlabel(r'$Mean\/count\/of\/Ribo$-$Seq$', fontsize=15)
+    
+    contrast_name = os.path.basename(fileOutName).replace('.TEchange.scatter.pdf', '')
+    ax.set_title(r'Translation Efficiency Change, {}'.format(contrast_name))
+    ax.set_xlabel(r'$Log2(Mean\/count\/of\/RNA$-$Seq)$', fontsize=15)
     ax.set_ylabel(r'$log_{2}(TE_{%s}/TE_{%s})$' % (data.nameCondB, data.nameCondA), fontsize=15)
 
     plt.savefig(fileOutName, format='pdf', bbox_inches='tight')
@@ -262,7 +273,7 @@ def make_plots(data, opts):
     if opts.__dict__['cutoffFDR']:
         fdr = opts.cutoffFDR
     else:
-        fdr = 0.1
+        fdr = 0.05
 
     fileOutName = outputNamePrefix + '.TEchange.scatter.pdf'
     cnt_deltaTE_scatter(data, fdr, fileOutName)
