@@ -35,13 +35,6 @@ def disper_raw(data, opts):
 
     for i in range(num):
 
-        sys.stdout.flush()
-
-        if i % 50 == 0:
-            print '\r%i genes finished...' % i ,
-        if i+1 == num:
-            print '\r%i genes finished.' % num
-
         if sum(data.countRibo[i, :] / data.libSizesRibo) >= cntCutoff and sum(data.countRna[i, :] / data.libSizesRna) >= cntCutoff:
 
             response = np.hstack([data.countRibo[i, :], data.countRna[i, :]])
@@ -180,13 +173,6 @@ def disper_raw_scalar(data, opts):
     librarySizes = np.hstack([data.libSizesRibo, data.libSizesRna])
 
     for i in range(num):
-
-        sys.stdout.flush()
-
-        if i % 50 == 0:
-            print '\r%i genes finished...' % i ,
-        if i+1 == num:
-            print '\r%i genes finished.' % num
 
         if sum(data.countRibo[i, :] / data.libSizesRibo) >= cntCutoff and sum(data.countRna[i, :] / data.libSizesRna) >= cntCutoff:
 

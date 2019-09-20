@@ -158,7 +158,6 @@ def empDisp_scatter(data, fileOutName):
 
     ax.text(0.03, 0.96, r'$\sigma_{Ribo\/}=\,%1.2f$' % stdDispRibo, horizontalalignment='left', verticalalignment='center', transform = ax.transAxes, fontsize=12)
     ax.text(0.03, 0.92, r'$\sigma_{RNA}=\,%1.2f$' % stdDispRna, horizontalalignment='left', verticalalignment='center', transform = ax.transAxes, fontsize=12)
-
     plt.savefig(fileOutName, format='pdf', bbox_inches='tight')
 
 def cnt_deltaTE_scatter(data, fdr, fileOutName):
@@ -174,13 +173,27 @@ def cnt_deltaTE_scatter(data, fdr, fileOutName):
             exit(1)
         cntRiboMean = np.mean(cntRiboNorm, axis=1)
         cntRnaMean = np.mean(cntRnaNorm, axis=1) 
-
+        df['gene_id'] = np.reshape(data.geneIDs, len(data.geneIDs))
         df['cntRiboMean'] = list(cntRiboMean)
         df['cntRnaMean'] = list(cntRnaMean)
         df['padj'] = list(padj)
         df['logFoldChangeTE'] = list(data.logFoldChangeTE)
+        df["logFoldChangeTE"] = df["logFoldChangeTE"].astype(str).str.replace("[", "").str.replace("]", "")
+        # save the whole datatable to plot on the web-site
+        data_file = fileOutName.replace('.TEchange.scatter.pdf', "_plot_data.tsv")
+        print("Writing plot_data: {}".format(data_file))
+        df1 = df.copy()
+        df1 = df1.loc[~df1['gene_id'].str.startswith('MT-')]
+        df1 = df1.loc[~df1['gene_id'].str.startswith('HIST')]
+        df1.to_csv(data_file, sep="\t", index=False)
+        df['logFoldChangeTE'] = list(data.logFoldChangeTE)
+
         idx = np.logical_and(~np.isnan(padj), np.logical_and(np.sum(cntRiboNorm, axis=1)/data.libSizesRibo.size > 2, np.sum(cntRnaNorm, axis=1)/data.libSizesRna.size > 2)).nonzero()[0]
         df = df.loc[idx]
+        # remove HIST and MT genes:
+        df = df.loc[~df['gene_id'].str.startswith('MT-')]
+        df = df.loc[~df['gene_id'].str.startswith('HIST')]
+
         logFoldChangeTE = df['logFoldChangeTE']
         cntRnaMean = df['cntRnaMean']
         cntRiboMean = df['cntRiboMean']
@@ -208,8 +221,8 @@ def cnt_deltaTE_scatter(data, fdr, fileOutName):
     ax.set_title(r'Translation Efficiency Change, {}'.format(contrast_name))
     ax.set_xlabel(r'$Log2(Mean\/count\/of\/RNA$-$Seq)$', fontsize=15)
     ax.set_ylabel(r'$log_{2}(TE_{%s}/TE_{%s})$' % (data.nameCondB, data.nameCondA), fontsize=15)
-
     plt.savefig(fileOutName, format='pdf', bbox_inches='tight')
+
 
 def deltaTE_hist(data, fdr, fileOutName):
 

@@ -36,13 +36,6 @@ def test_count(data, opts):
     errorCnt = 0
 
     for i in range(num):
-        sys.stdout.flush()
-
-        if i % 50 == 0:
-            print '\r%i genes finished...' % i ,
-        if i+1 == num:
-            print '\r%i genes finished.' % num
-
         if opts.dispDiff and np.isnan(data.dispAdjRibo[i]):
             continue
         if not opts.dispDiff and np.isnan(data.dispAdj[i]):

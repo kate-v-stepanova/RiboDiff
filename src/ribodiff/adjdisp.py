@@ -98,13 +98,6 @@ def disper_adj(data, opts):
 
     for i in range(num):
 
-        sys.stdout.flush()
-
-        if i % 50 == 0:
-            print '\r%i genes finished...' % i ,
-        if i+1 == num:
-            print '\r%i genes finished.' % num
-
         if not np.isnan(data.dispRawRibo[i]):
 
             response = np.hstack([data.countRibo[i, :], data.countRna[i, :]])
@@ -253,13 +246,6 @@ def disper_adj_scalar(data, opts):
     varPrior = calculate_varPrior(data.dispRaw, data.dispFitted, data.dispFittedIdx, varLogDispSamp)
 
     for i in range(num):
-
-        sys.stdout.flush()
-
-        if i % 50 == 0:
-            print '\r%i genes finished...' % i ,
-        if i+1 == num:
-            print '\r%i genes finished.' % num
 
         if not np.isnan(data.dispRaw[i]):
 

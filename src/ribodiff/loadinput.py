@@ -124,12 +124,10 @@ class LoadInputs(object):
 
         with open(self.fileNameCount, 'r') as FileIn:
             header = np.array(FileIn.readline().strip().split('\t'), dtype=str)
-
         idxRibo = np.in1d(header, self.experRibo).nonzero()[0]
         idxRna  = np.in1d(header, self.experRna ).nonzero()[0]
         idxCtl  = np.in1d(header, self.experCtl ).nonzero()[0]
         idxTrt  = np.in1d(header, self.experTrt ).nonzero()[0]
-
         if idxRibo.size != self.experRibo.size or idxRna.size != self.experRna.size or idxCtl.size != self.experCtl.size or idxTrt.size != self.experTrt.size:
             sys.stderr.write('Error: At least one sample or replicate\'s name in count file and experimental outline file does not match.\n')
             sys.exit()

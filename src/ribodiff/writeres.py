@@ -25,15 +25,27 @@ def write_result(data, opts):
     nameCondB = data.nameCondB
     logFoldChangeTE = data.logFoldChangeTE.astype(str)
 
+    # get counts for RP
+    cntRiboNorm = data.countRibo / data.libSizesRibo
+    cntRiboMean = np.mean(cntRiboNorm, axis=1)
+    log2Ribo = np.log2(cntRiboMean)
+    cntRiboMean = cntRiboMean.reshape(len(cntRiboMean), 1)
+    log2Ribo = log2Ribo.reshape(len(log2Ribo), 1)
+    # get counts for RNA
+    cntRnaNorm  = data.countRna  / data.libSizesRna
+    cntRnaMean = np.mean(cntRnaNorm, axis=1)
+    log2Rna = np.log2(cntRnaMean)
+    cntRnaMean = cntRnaMean.reshape(len(cntRnaMean), 1)
+    log2Rna = log2Rna.reshape(len(log2Rna), 1)
     if opts.dispDiff:
         dispAdjRibo = data.dispAdjRibo.astype(str)
         dispAdjRna  = data.dispAdjRna.astype(str)
-        outNdarrayUnsorted = np.hstack([geneIDs, dispAdjRibo, dispAdjRna, pval, padj, TEctl, TEtrt, logFoldChangeTE])
-        header = 'geneIDs\tdisperRibo\tdisperRNA\tpval\tpadj\tTE%s\tTE%s\tlog2FC_TE(%s vs %s)\t' % (nameCondA, nameCondB, nameCondB, nameCondA)
+        outNdarrayUnsorted = np.hstack([geneIDs, dispAdjRibo, dispAdjRna, pval, padj, TEctl, TEtrt, logFoldChangeTE, cntRnaMean, cntRiboMean, log2Rna, log2Ribo])
+        header = 'geneIDs\tdisperRibo\tdisperRNA\tpval\tpadj\tTE%s\tTE%s\tlog2FC_TE(%s vs %s)\tcntRnaMean\tcntRiboMean\tlog2Rna\tlog2Ribo\t' % (nameCondA, nameCondB, nameCondB, nameCondA)
     else:
         dispAdj = data.dispAdj.astype(str)
-        outNdarrayUnsorted = np.hstack([geneIDs, dispAdj, pval, padj, TEctl, TEtrt, logFoldChangeTE])
-        header = 'geneIDs\tdisper\tpval\tpadj\tTE%s\tTE%s\tlog2FC_TE(%s vs %s)\t' % (nameCondA, nameCondB, nameCondB, nameCondA)
+        outNdarrayUnsorted = np.hstack([geneIDs, dispAdj, pval, padj, TEctl, TEtrt, logFoldChangeTE, cntRnaMean, cntRiboMean, log2Rna, log2Ribo])
+        header = 'geneIDs\tdisper\tpval\tpadj\tTE%s\tTE%s\tlog2FC_TE(%s vs %s)\tcntRnaMean\tcntRiboMean\tlog2Rna\tlog2Ribo\t' % (nameCondA, nameCondB, nameCondB, nameCondA)
 
     if opts.rankResult == 0:
         outNdarray = outNdarrayUnsorted.copy()
