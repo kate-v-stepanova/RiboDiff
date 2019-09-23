@@ -36,6 +36,6 @@ echo "rm $outdir/*.pkl"
 echo "cp $outdir/* $rp_outdir" 
 echo "mv $outdir/*.pdf $plotdir"
 echo "mv $rp_outdir/*.pdf $plotdir_rp"
-echo "python ./utils/fix_excel.py $project_id"
-echo "python ./utils/fix_excel.py $rp_id"
+echo "python /icgc/dkfzlsdf/analysis/OE0532/software/diricore/utils/fix_excel.py $project_id"
+echo "python /icgc/dkfzlsdf/analysis/OE0532/software/diricore/utils/fix_excel.py $rp_id"
 
