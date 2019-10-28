@@ -147,6 +147,9 @@ def cal_TEchange(data):
     logFoldChangeTE = np.reshape(logFoldChangeTE, (logFoldChangeTE.size, 1))
 
     data.logFoldChangeTE = logFoldChangeTE
-
+    data.meanRiboCtl = meanRiboCtl
+    data.meanRiboTrt = meanRiboTrt
+    data.meanRnaCtl = meanRnaCtl
+    data.meanRnaTrt = meanRnaTrt
     return data
 

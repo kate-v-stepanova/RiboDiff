@@ -27,13 +27,12 @@ def lib_size(countNdarray):
     countNdarrayTmp = countNdarray.copy()
     countNdarrayTmp = countNdarrayTmp + 1
     geoMeans = np.exp(np.mean(np.log(countNdarrayTmp), axis=1))
-
+    
     librarySizes = np.zeros(countNdarray.shape[1])
-
+    
     for i in range(countNdarray.shape[1]):
         idx = countNdarray[:, i] > 0
         librarySizes[i] = np.median(countNdarray[idx, i] / geoMeans[idx])
-
     return librarySizes
 
 if __name__ == '__main__':

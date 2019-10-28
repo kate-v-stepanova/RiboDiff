@@ -8,8 +8,8 @@ def split(number):
     if number == 0:
         return 0
     if number >= 50:
-        min_val = int(number * 0.45)
-        max_val = int(number * 0.55)
+        min_val = int(number * 0.48)
+        max_val = int(number * 0.52)
         a = random.randint(min_val, max_val)
     else:
         a = random.randint(0, number)
